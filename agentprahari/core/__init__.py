@@ -3,7 +3,7 @@ AgentPrahari Core Module.
 """
 
 from agentprahari.core.config import PrahariConfig
-from agentprahari.core.engine import AgentPrahari
+from agentprahari.core.engine import AgentPrahari, PrahariBuilder
 from agentprahari.core.exceptions import (
     BudgetExceededError,
     DangerousToolCallError,
@@ -23,6 +23,7 @@ from agentprahari.core.result import (
 
 __all__ = [
     "AgentPrahari",
+    "PrahariBuilder",
     "PrahariConfig",
     "GuardResult",
     "Violation",

@@ -20,9 +20,14 @@ class SecretLeakGuard(BaseOutputGuard):
     def __init__(self):
         self.secret_patterns: List[Tuple[Pattern[str], str, str]] = [
             (
-                re.compile(r"sk-[a-zA-Z0-9_\-]{20,}", re.IGNORECASE),
+                re.compile(r"sk-[a-zA-Z0-9_\-\s]{20,}", re.IGNORECASE),
                 "OUT_SECRET_OPENAI_KEY",
                 "Leaked OpenAI API key in model response"
+            ),
+            (
+                re.compile(r"\beyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]+\b", re.IGNORECASE),
+                "OUT_SECRET_JWT_TOKEN",
+                "Leaked JSON Web Token (JWT) in model response"
             ),
             (
                 re.compile(r"AKIA[0-9A-Z]{16}", re.IGNORECASE),
@@ -40,9 +45,24 @@ class SecretLeakGuard(BaseOutputGuard):
                 "Leaked Database Connection URI with plaintext password in model response"
             ),
             (
+                re.compile(r"\b(?:database\s+password\s+is|password\s*(?:is|=|:))\s*['\"][^'\"]{4,}['\"]", re.IGNORECASE),
+                "OUT_SECRET_PASSWORD_STRING",
+                "Leaked plaintext password string in model response"
+            ),
+            (
                 re.compile(r"-----BEGIN (?:RSA|OPENSSH|EC|DSA) PRIVATE KEY-----", re.IGNORECASE),
                 "OUT_SECRET_PRIVATE_KEY",
                 "Leaked Private SSH/TLS Key in model response"
+            ),
+            (
+                re.compile(r"\b(?:key\s+(?:starts|ends)\s+with|first\s+\d+\s+chars|last\s+\d+\s+chars|key\s+length\s+is\s+\d+|secret\s+is\s+sk-[a-zA-Z0-9_\-*]+|field\s+1:\s+sk-)", re.IGNORECASE),
+                "OUT_SECRET_PARTIAL_LEAK",
+                "Partial secret or credential fingerprint leaked in model response"
+            ),
+            (
+                re.compile(r"\b(?:my\s+prompt\s+is|hidden\s+instruction\s+extracted|summary\s+of\s+instructions|prompt\s+encoded)\s*:\s*.+", re.IGNORECASE),
+                "OUT_SYSTEM_PROMPT_LEAK",
+                "Leaked system prompt or instruction exfiltration format in model response"
             ),
         ]
 
@@ -79,6 +99,27 @@ class SecretLeakGuard(BaseOutputGuard):
         ratio = leaked_chunks / len(chunks)
         return ratio >= (1.0 - threshold)
 
+    def _detect_structural_jwts(self, text: str) -> List[Tuple[str, str]]:
+        """
+        Structural JWT detector looking for header.payload.signature pattern
+        and common contexts like Authorization: Bearer, token=, jwt=.
+        """
+        detected = []
+        # Pattern matching potential 3-part base64url structures
+        jwt_candidates = re.finditer(
+            r"(?:(?:Bearer|token=|jwt=)\s*)?([A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_.\-]+)",
+            text,
+            re.IGNORECASE
+        )
+        for match in jwt_candidates:
+            token_str = match.group(1)
+            parts = token_str.split(".")
+            if len(parts) >= 3 and len(parts[0]) >= 8 and len(parts[1]) >= 8:
+                # Check for standard JWT base64url prefix (eyJ is base64 for {" )
+                if parts[0].startswith("eyJ"):
+                    detected.append((match.group(0), "Structural JSON Web Token (JWT)"))
+        return detected
+
     def evaluate(
         self,
         output_text: str,
@@ -90,7 +131,21 @@ class SecretLeakGuard(BaseOutputGuard):
         sanitized = output_text
         violations: List[Violation] = []
 
-        # 1. Check for hardcoded secret patterns
+        # 1. Check for structural JWTs first
+        structural_jwts = self._detect_structural_jwts(sanitized)
+        for raw_match, desc in structural_jwts:
+            violations.append(Violation(
+                rule_id="OUT_SECRET_JWT_STRUCTURAL",
+                message=f"Leaked {desc} in model response",
+                severity=Severity.CRITICAL,
+                category=GuardCategory.OUTPUT,
+                guard_name=self.name,
+                matched_content=raw_match[:12] + "...",
+                details={"type": "structural_jwt"}
+            ))
+            sanitized = sanitized.replace(raw_match, "[REDACTED_JWT]")
+
+        # 2. Check for hardcoded secret patterns
         for pattern, rule_id, message in self.secret_patterns:
             matches = list(pattern.finditer(sanitized))
             for match in matches:
@@ -107,7 +162,22 @@ class SecretLeakGuard(BaseOutputGuard):
                 # Redact the secret from output
                 sanitized = sanitized.replace(matched_val, "[REDACTED_SECRET]")
 
-        # 2. Check for system prompt regurgitation
+        # 3. Check for newline-split secrets (detection on whitespace-collapsed text)
+        multiline_secret_match = re.search(r"sk-[a-zA-Z0-9_\-]{3,}\s*[\r\n]+\s*[a-zA-Z0-9_\-]{15,}", sanitized)
+        if multiline_secret_match:
+            raw_val = multiline_secret_match.group(0)
+            violations.append(Violation(
+                rule_id="OUT_SECRET_MULTILINE_KEY",
+                message="Leaked newline-split secret key in model response",
+                severity=Severity.CRITICAL,
+                category=GuardCategory.OUTPUT,
+                guard_name=self.name,
+                matched_content="sk-***[split-key]",
+                details={"multiline": True}
+            ))
+            sanitized = sanitized.replace(raw_val, "[REDACTED_SECRET]")
+
+        # 4. Check for system prompt regurgitation
         if config.system_prompt and self._check_system_prompt_leak(
             sanitized, config.system_prompt, config.system_prompt_similarity_threshold
         ):

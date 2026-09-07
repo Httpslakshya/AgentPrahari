@@ -37,10 +37,18 @@ class DiffTracker:
                 start_idx = 0
                 end_idx = len(original_snippet)
 
+        # Ensure raw sensitive credentials are never stored unmasked in the audit trail
+        safe_original = original_snippet
+        if any(sec in rule_id.upper() for sec in ("API_KEY", "PASSWORD", "JWT", "SECRET", "PRIVATE_KEY", "CREDENTIAL")):
+            if len(original_snippet) > 8:
+                safe_original = original_snippet[:4] + "***" + original_snippet[-4:]
+            else:
+                safe_original = "***"
+
         mod = TextModification(
             start=start_idx,
             end=end_idx,
-            original=original_snippet,
+            original=safe_original,
             replacement=replacement_snippet,
             reason=reason,
             rule_id=rule_id,
@@ -91,9 +99,15 @@ class DiffTracker:
             self.current_text = new_text
 
     def build_diff(self) -> SanitizationDiff:
-        """Constructs the final SanitizationDiff object."""
+        """Constructs the final SanitizationDiff object, ensuring secrets are masked in audit trails."""
+        safe_orig = self.original_text
+        for mod in self.modifications:
+            if any(sec in mod.rule_id.upper() for sec in ("API_KEY", "PASSWORD", "JWT", "SECRET", "PRIVATE_KEY", "CREDENTIAL")):
+                if 0 <= mod.start < mod.end <= len(self.original_text):
+                    safe_orig = safe_orig[:mod.start] + mod.original + safe_orig[mod.end:]
+
         return SanitizationDiff(
-            original_text=self.original_text,
+            original_text=safe_orig,
             sanitized_text=self.current_text,
             modifications=list(self.modifications),
         )

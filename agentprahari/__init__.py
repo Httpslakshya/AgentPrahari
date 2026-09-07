@@ -3,7 +3,7 @@ AgentPrahari: The Robust, Drop-in Security & Safety Guardrail Layer for AI Agent
 """
 
 from agentprahari.core.config import PrahariConfig
-from agentprahari.core.engine import AgentPrahari
+from agentprahari.core.engine import AgentPrahari, PrahariBuilder
 from agentprahari.core.exceptions import (
     BudgetExceededError,
     DangerousToolCallError,
@@ -29,6 +29,7 @@ ShieldBlockedError = PrahariBlockedError
 __all__ = [
     "AgentPrahari",
     "AgentShield",
+    "PrahariBuilder",
     "PrahariConfig",
     "ShieldConfig",
     "GuardResult",

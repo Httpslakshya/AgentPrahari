@@ -20,7 +20,7 @@ class PrahariConfig:
     pii_action: str = "sanitize"  # "sanitize" (mask/redact) or "block"
     pii_mask_style: str = "tag"   # "tag" ([REDACTED_EMAIL]), "asterisk" (j***@example.com), "hash"
     pii_entities: List[str] = field(default_factory=lambda: [
-        "email", "phone", "ssn", "credit_card", "api_key", "ip_address", "jwt", "password"
+        "email", "phone", "ssn", "credit_card", "api_key", "ip_address", "jwt", "password", "private_key", "sensitive_marker"
     ])
     custom_regex_rules: List[Dict[str, Any]] = field(default_factory=list)
 
@@ -58,6 +58,7 @@ class PrahariConfig:
     # --- Governance & Rate Limits ---
     max_requests_per_minute: Optional[int] = None
     max_tokens_budget: Optional[int] = None
+    fail_safe_default_deny: bool = True
 
     # --- Optional LLM-as-a-Judge ---
     llm_judge_enabled: bool = False

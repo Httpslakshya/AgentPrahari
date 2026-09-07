@@ -19,7 +19,7 @@ class PathGuard(BaseToolGuard):
 
     def __init__(self):
         self.traversal_pattern = re.compile(
-            r"(?:\.\.[\\/]|%2e%2e[%2f\\|/])",
+            r"(?:\.\.[\\/]|%2e%2e|%252e%252e|\.\.$|^\.\.)",
             re.IGNORECASE
         )
 
@@ -52,8 +52,19 @@ class PathGuard(BaseToolGuard):
         arg_strings = self._extract_string_values(tool_args)
 
         for arg in arg_strings:
-            # 1. Path traversal checks (e.g. ../../../etc/passwd)
-            if self.traversal_pattern.search(arg):
+            # Recursively unquote percent encoding to detect double encoded traversal (e.g. %252e%252e%252f)
+            decoded_arg = arg
+            for _ in range(3):
+                try:
+                    next_dec = urllib.parse.unquote(decoded_arg)
+                    if next_dec == decoded_arg:
+                        break
+                    decoded_arg = next_dec
+                except Exception:
+                    break
+
+            # 1. Path traversal checks (e.g. ../../../etc/passwd or %252e%252e)
+            if self.traversal_pattern.search(arg) or self.traversal_pattern.search(decoded_arg):
                 violations.append(Violation(
                     rule_id="TOOL_PATH_TRAVERSAL",
                     message=f"Path traversal sequence detected in tool '{tool_name}' argument",

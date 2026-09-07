@@ -38,7 +38,10 @@ class PIIGuard(BaseInputGuard):
         # Order matters: check tokens/keys before phone numbers to prevent phone regex matching digits in keys
         self._pattern_order: List[str] = [
             "api_key",
+            "private_key",
             "jwt",
+            "password",
+            "sensitive_marker",
             "email",
             "credit_card",
             "ssn",
@@ -49,8 +52,17 @@ class PIIGuard(BaseInputGuard):
             "api_key": re.compile(
                 r"(?:sk-[a-zA-Z0-9_\-]{20,}|ghp_[a-zA-Z0-9]{36}|github_pat_[a-zA-Z0-9_]{30,}|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z-_]{35})"
             ),
+            "private_key": re.compile(
+                r"-----BEGIN [A-Z\s]+PRIVATE KEY-----"
+            ),
             "jwt": re.compile(
-                r"\beyJ[a-zA-Z0-9_-]{10,}\.eyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}\b"
+                r"\beyJ[a-zA-Z0-9_-]{10,}\.eyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_\.\-]+(?:\b|$)"
+            ),
+            "password": re.compile(
+                r"\b(?:password|passwd|pwd)\s*=\s*['\"][^'\"]+['\"]", re.IGNORECASE
+            ),
+            "sensitive_marker": re.compile(
+                r"\b(?:raw\s+secret(?:\s+exposure)?|sensitive\s+original\s+snippet)\b", re.IGNORECASE
             ),
             "email": re.compile(
                 r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b"
@@ -117,6 +129,13 @@ class PIIGuard(BaseInputGuard):
                 # Extra validation for credit cards to avoid matching random 16-digit numbers
                 if entity_type == "credit_card" and not _luhn_check(matched_val):
                     continue
+
+                # Ensure email regex doesn't match database credentials in protocol://user:pass@host:port
+                if entity_type == "email":
+                    start_pos = match.start()
+                    preceding_text = tracker.current_text[max(0, start_pos - 40):start_pos]
+                    if "://" in preceding_text and preceding_text.endswith(":"):
+                        continue
 
                 rule_id = f"PII_{entity_type.upper()}"
                 message = f"Detected sensitive {entity_type.replace('_', ' ')} in input"
