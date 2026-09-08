@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Documentation — AgentPrahari</title>
+  <meta name="description" content="Complete API and architectural documentation for AgentPrahari security runtime.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,600&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .docs-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .docs-layout { grid-template-columns: 1fr; }
+      .docs-sidebar { display: none; }
+    }
+    .docs-sidebar {
+      position: sticky;
+      top: 96px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      max-height: calc(100vh - 120px);
+      overflow-y: auto;
+    }
+    .docs-sidebar h4 {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--brass);
+      margin: 18px 0 8px;
+    }
+    .docs-sidebar h4:first-child { margin-top: 0; }
+    .docs-sidebar ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .docs-sidebar a {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      display: block;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+    }
+    .docs-sidebar a:hover {
+      color: var(--text);
+      background: var(--canvas-subtle);
+    }
+    .doc-section {
+      margin-bottom: 56px;
+      scroll-margin-top: 100px;
+    }
+    .doc-section h2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .doc-section h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin: 28px 0 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+
+<!-- NAVIGATION -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="index.html">
+      <div class="brand-icon-box">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 20V10.5C4 7 7.5 4 12 4C16.5 4 20 7 20 10.5V20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="4" y1="20" x2="20" y2="20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="8" y1="20" x2="8" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="16" y1="20" x2="16" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="brand-text">AgentPrahari</span>
+      <span class="brand-badge">v0.1.0</span>
+    </a>
+
+    <nav class="links">
+      <a href="index.html#pipeline">The 3 Gates</a>
+      <a href="index.html#playground">Live Simulator</a>
+      <a href="benchmarks.html">Benchmarks</a>
+      <a href="docs.html" class="active">Docs</a>
+      <a href="quickstart.html">Quickstart</a>
+    </nav>
+
+    <div class="nav-actions">
+      <a class="github-badge" href="https://github.com/Httpslakshya/AgentPrahari" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.78-.25.78-.55 0-.27-.01-1.17-.02-2.12-3.2.7-3.88-1.36-3.88-1.36-.52-1.34-1.28-1.7-1.28-1.7-1.04-.72.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.75 2.69 1.25 3.34.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.64 1.59.24 2.77.12 3.06.74.8 1.19 1.83 1.19 3.09 0 4.43-2.7 5.4-5.27 5.69.42.36.78 1.07.78 2.16 0 1.56-.02 2.82-.02 3.2 0 .31.21.66.79.55A10.52 10.52 0 0 0 23.5 12c0-6.35-5.15-11.5-11.5-11.5Z"/></svg>
+        <span>GitHub</span>
+      </a>
+      <a class="btn btn-brass" href="quickstart.html">Quickstart</a>
+    </div>
+  </div>
+</header>
+
+<main style="padding: 60px 0 100px;">
+  <div class="wrap">
+    <div class="docs-layout">
+      
+      <!-- SIDEBAR -->
+      <aside class="docs-sidebar">
+        <h4>Overview</h4>
+        <ul>
+          <li><a href="#core-engine">Core Engine</a></li>
+          <li><a href="#presets">Security Presets</a></li>
+        </ul>
+
+        <h4>Methods</h4>
+        <ul>
+          <li><a href="#validate-input">validate_input()</a></li>
+          <li><a href="#validate-tool">validate_tool_call()</a></li>
+          <li><a href="#validate-output">validate_output()</a></li>
+          <li><a href="#wrap">shield.wrap()</a></li>
+        </ul>
+
+        <h4>Integrations</h4>
+        <ul>
+          <li><a href="#fastapi-middleware">FastAPI Middleware</a></li>
+          <li><a href="#langchain-handler">LangChain Handler</a></li>
+          <li><a href="#crewai-tool">CrewAI Tool</a></li>
+        </ul>
+
+        <h4>CLI Sandbox</h4>
+        <ul>
+          <li><a href="#cli-reference">CLI Commands</a></li>
+        </ul>
+      </aside>
+
+      <!-- CONTENT -->
+      <div class="docs-content">
+        
+        <!-- CORE ENGINE -->
+        <section class="doc-section" id="core-engine">
+          <h2>Core Engine Architecture</h2>
+          <p>
+            The master class is <code style="font-family:var(--font-mono);background:var(--canvas-muted);padding:2px 6px;border-radius:4px;">AgentPrahari</code>. It coordinates input canonicalization, PII redaction, prompt injection filtering, tool validation, loop detection, and secret leakage defense.
+          </p>
+          <div style="background:var(--code-bg);border-radius:var(--radius-lg);padding:20px;margin-top:16px;">
+            <pre><code style="color:var(--code-text);font-family:var(--font-mono);font-size:0.88rem;"><span class="token-kw">from</span> agentprahari <span class="token-kw">import</span> <span class="token-cls">AgentPrahari</span>
+
+<span class="token-cm"># Initialize with preset:</span>
+shield = <span class="token-cls">AgentPrahari</span>.<span class="token-fn">from_preset</span>(<span class="token-str">"strict"</span>)</code></pre>
+          </div>
+        </section>
+
+        <!-- PRESETS -->
+        <section class="doc-section" id="presets">
+          <h2>Security Presets</h2>
+          <p>
+            AgentPrahari provides 5 audited presets suited for different enterprise workloads:
+          </p>
+          <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px;">
+            <div style="padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);">
+              <strong><code>strict</code> (Default):</strong> Maximum security for public-facing customer applications. Masks PII, blocks all injection risks, and restricts dangerous tools.
+            </div>
+            <div style="padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);">
+              <strong><code>moderate</code>:</strong> Balanced protection for internal employee copilots.
+            </div>
+            <div style="padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);">
+              <strong><code>code_agent</code>:</strong> Tailored for developer tools and coding assistants. Permits code syntax, technical IPs, and compiler commands while blocking destructive operations (<code style="font-family:var(--font-mono);">rm -rf</code>, formatting).
+            </div>
+            <div style="padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);">
+              <strong><code>financial</code>:</strong> Enforces PCI-DSS credit card Luhn validation, strict audit logging, and human-in-the-loop approvals.
+            </div>
+          </div>
+        </section>
+
+        <!-- VALIDATE INPUT -->
+        <section class="doc-section" id="validate-input">
+          <h2>validate_input(prompt, client_id="default")</h2>
+          <p>
+            Runs pre-execution checks on a user prompt or external RAG context. Returns an immutable <code style="font-family:var(--font-mono);">GuardResult</code>.
+          </p>
+          <div style="background:var(--code-bg);border-radius:var(--radius-lg);padding:20px;margin-top:16px;">
+            <pre><code style="color:var(--code-text);font-family:var(--font-mono);font-size:0.88rem;">result = shield.<span class="token-fn">validate_input</span>(<span class="token-str">"Ignore instructions"</span>)
+
+<span class="token-kw">if</span> result.decision == <span class="token-cls">ActionDecision</span>.BLOCK:
+    <span class="token-fn">print</span>(<span class="token-str">"Blocked:"</span>, result.rejection_reason)
+<span class="token-kw">elif</span> result.decision == <span class="token-cls">ActionDecision</span>.SANITIZE:
+    <span class="token-fn">print</span>(<span class="token-str">"Sanitized safe text:"</span>, result.sanitized_content)</code></pre>
+          </div>
+          <p style="font-size:0.85rem;color:var(--text-muted);margin-top:10px;">
+            <em>Note: <code>evaluate_input()</code> is supported as a 100% compatible direct alias.</em>
+          </p>
+        </section>
+
+        <!-- VALIDATE TOOL -->
+        <section class="doc-section" id="validate-tool">
+          <h2>validate_tool_call(tool_name, tool_args=None)</h2>
+          <p>
+            Evaluates impending agent actions before tool dispatch. Intercepts destructive shell operations, SQL drops, path escapes, and loops.
+          </p>
+          <div style="background:var(--code-bg);border-radius:var(--radius-lg);padding:20px;margin-top:16px;">
+            <pre><code style="color:var(--code-text);font-family:var(--font-mono);font-size:0.88rem;">res = shield.<span class="token-fn">validate_tool_call</span>(<span class="token-str">"bash"</span>, {<span class="token-str">"cmd"</span>: <span class="token-str">"rm -rf /"</span>})
+
+<span class="token-kw">if not</span> res.is_valid:
+    <span class="token-kw">raise</span> <span class="token-cls">DangerousToolCallError</span>(res.rejection_reason)</code></pre>
+          </div>
+          <p style="font-size:0.85rem;color:var(--text-muted);margin-top:10px;">
+            <em>Note: <code>evaluate_tool_action()</code> and <code>evaluate_tool_call()</code> are direct aliases.</em>
+          </p>
+        </section>
+
+        <!-- WRAP CLIENT -->
+        <section class="doc-section" id="wrap">
+          <h2>shield.wrap(client)</h2>
+          <p>
+            1-line drop-in wrapper for standard OpenAI and Anthropic SDK client instances. Automatically checks prompts before transmission and scrubs model completions before returning.
+          </p>
+          <div style="background:var(--code-bg);border-radius:var(--radius-lg);padding:20px;margin-top:16px;">
+            <pre><code style="color:var(--code-text);font-family:var(--font-mono);font-size:0.88rem;"><span class="token-kw">from</span> openai <span class="token-kw">import</span> OpenAI
+
+client = shield.<span class="token-fn">wrap</span>(<span class="token-cls">OpenAI</span>())
+<span class="token-cm"># Ready to use with automatic guardrails!</span></code></pre>
+          </div>
+        </section>
+
+        <!-- FASTAPI -->
+        <section class="doc-section" id="fastapi-middleware">
+          <h2>PrahariMiddleware (FastAPI / ASGI)</h2>
+          <p>
+            Standard ASGI middleware for FastAPI, Starlette, and Quart. Transparently inspects incoming request JSON payloads, strips PII, and returns HTTP 400 on attacks.
+          </p>
+          <div style="background:var(--code-bg);border-radius:var(--radius-lg);padding:20px;margin-top:16px;">
+            <pre><code style="color:var(--code-text);font-family:var(--font-mono);font-size:0.88rem;"><span class="token-kw">from</span> fastapi <span class="token-kw">import</span> FastAPI
+<span class="token-kw">from</span> agentprahari.middleware <span class="token-kw">import</span> <span class="token-cls">PrahariMiddleware</span>
+
+app = <span class="token-cls">FastAPI</span>()
+app.<span class="token-fn">add_middleware</span>(<span class="token-cls">PrahariMiddleware</span>, preset=<span class="token-str">"strict"</span>)</code></pre>
+          </div>
+        </section>
+
+        <!-- CLI REFERENCE -->
+        <section class="doc-section" id="cli-reference">
+          <h2>CLI Sandbox Reference</h2>
+          <p>
+            Command-line interface commands available for terminal testing and CI/CD scripting:
+          </p>
+          <div style="background:var(--code-bg);border-radius:var(--radius-lg);padding:20px;margin-top:16px;">
+            <pre><code style="color:var(--code-text);font-family:var(--font-mono);font-size:0.88rem;"><span class="token-cm"># Inspect input prompt:</span>
+agentprahari check <span class="token-str">"prompt text"</span> [--preset strict] [--json]
+
+<span class="token-cm"># Inspect tool call:</span>
+agentprahari check-tool <span class="token-str">bash</span> <span class="token-str">"rm -rf /"</span>
+
+<span class="token-cm"># Inspect model output for secret leaks:</span>
+agentprahari check-output <span class="token-str">"response text"</span>
+
+<span class="token-cm"># Measure CPU micro-latency:</span>
+agentprahari benchmark</code></pre>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap footer-inner">
+    <a class="brand" href="index.html">
+      <div class="brand-icon-box" style="width:28px;height:28px;border-radius:6px;">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px;">
+          <path d="M4 20V10.5C4 7 7.5 4 12 4C16.5 4 20 7 20 10.5V20" stroke="#FFFFFF" stroke-width="2"/>
+        </svg>
+      </div>
+      <span class="brand-text" style="font-size:1.05rem;">AgentPrahari</span>
+    </a>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="benchmarks.html">Benchmarks</a>
+      <a href="quickstart.html">Quickstart</a>
+      <a href="https://github.com/Httpslakshya/AgentPrahari" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+<div class="toast-notice" id="toast-notice">Copied to clipboard!</div>
+<script src="script.js"></script>
+</body>
+</html>
