@@ -37,6 +37,9 @@ judge = ["requests>=2.25.0"]
 all = ["requests>=2.25.0", "pytest>=7.0.0"]
 test = ["pytest>=7.0.0"]
 
+[project.scripts]
+agentprahari = "agentprahari.cli:main"
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["agentprahari*"]

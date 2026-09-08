@@ -21,6 +21,9 @@ from agentprahari.core.result import (
     Violation,
 )
 
+from agentprahari.middleware import PrahariMiddleware
+from agentprahari.integrations import PrahariCallbackHandler, PrahariCrewAITool
+
 # Backwards compatibility aliases
 AgentShield = AgentPrahari
 ShieldConfig = PrahariConfig
@@ -45,5 +48,8 @@ __all__ = [
     "DangerousToolCallError",
     "BudgetExceededError",
     "RateLimitExceededError",
+    "PrahariMiddleware",
+    "PrahariCallbackHandler",
+    "PrahariCrewAITool",
 ]
 

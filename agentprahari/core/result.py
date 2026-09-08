@@ -20,6 +20,7 @@ class ActionDecision(str, Enum):
     ALLOW = "ALLOW"
     SANITIZE = "SANITIZE"
     BLOCK = "BLOCK"
+    REQUIRE_HITL = "REQUIRE_HITL"
 
 
 class GuardCategory(str, Enum):

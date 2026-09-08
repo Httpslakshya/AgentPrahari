@@ -246,16 +246,20 @@ Every guard evaluation produces an immutable decision object:
 - **Role**: The master orchestration engine and fluent builder.
 - **Why we use it**: Coordinates the execution sequence of all registered input guards, tool guards, output guards, governance modules, and audit loggers. Provides the single entry point for client applications.
 - **Internal Logic**:
-  - **Fail-Safe Default-Deny Wrapper**: `evaluate_tool_action()` wraps all execution in a `try...except Exception` block. If any unhandled exception occurs and `config.fail_safe_default_deny` is enabled, it catches the error, logs a critical violation, and returns `ActionDecision.BLOCK`.
-  - **Pipeline Progression**: In `evaluate_input()`, checks rate limits first, feeds text through canonicalization, creates an isolated `DiffTracker`, executes each guard in sequence, updates running text upon sanitization, and halts immediately on `ActionDecision.BLOCK`.
+  - **Fail-Safe Default-Deny Wrapper**: `validate_tool_call()` wraps all execution in a `try...except Exception` block. If any unhandled exception occurs and `config.fail_safe_default_deny` is enabled, it catches the error, logs a critical violation, and returns `ActionDecision.BLOCK`.
+  - **Pipeline Progression**: In `validate_input()`, checks rate limits first, feeds text through canonicalization, creates an isolated `DiffTracker`, executes each guard in sequence, updates running text upon sanitization, and halts immediately on `ActionDecision.BLOCK`.
   - **Tool Pipeline**: Evaluates `SchemaGuard`, then `CommandGuard`, `PathGuard`, and `LoopGuard`. If any returns `BLOCK` or `REQUIRE_HITL`, execution short-circuits.
-  - **Fluent Builder (`PrahariBuilder`)**: Allows chainable programmatic construction (`PrahariBuilder().with_config(...).add_input_guard(...).build()`).
+  - **1-Line Wrapper (`wrap`)**: Injects pre-flight and post-flight interceptors into OpenAI / Anthropic client instances with zero application rewrites.
+  - **Fluent Builder (`PrahariBuilder`)**: Allows chainable programmatic construction (`PrahariBuilder().with_preset(...).without_pii().build()`).
 - **Key Classes & Methods**:
   - `AgentPrahari`: Primary runtime class.
-    - `evaluate_input(text, user_id, session_id) -> EvaluationResult`
-    - `evaluate_tool_action(tool_name, tool_args, session_id, user_id) -> ActionEvaluationResult`
-    - `evaluate_output(text, session_id, user_id) -> EvaluationResult`
-    - `reset_session(session_id)`
+    - `validate_input(prompt: str, client_id: str = "default") -> GuardResult` *(Canonical)* | Alias: `evaluate_input`
+    - `validate_tool_call(tool_name: str, tool_args: dict) -> GuardResult` *(Canonical)* | Aliases: `evaluate_tool_call`, `evaluate_tool_action`
+    - `validate_output(output_text: str, prompt=None, context=None) -> GuardResult` *(Canonical)* | Alias: `evaluate_output`
+    - `reset_agent_session() -> None` *(Canonical)* | Alias: `reset_session`
+    - `wrap(client: Any) -> Any`: 1-line drop-in wrapper for OpenAI / Anthropic clients.
+    - `wrap_tool(tool_func: Callable, name: Optional[str] = None) -> Callable`: Wraps individual tool functions.
+    - `protect(inputs=..., check_output=..., auto_sanitize=...) -> Callable`: Function decorator.
   - `PrahariBuilder`: Builder pattern implementation for custom runtime assembly.
 
 #### `agentprahari/core/exceptions.py`
@@ -539,13 +543,72 @@ Every guard evaluation produces an immutable decision object:
 
 #### `agentprahari/wrappers/tool_wrapper.py`
 - **Role**: Framework-agnostic wrapper for LangChain, CrewAI, and custom agent tools.
-- **Why we use it**: Automatically intercepts tool calls within agent orchestration frameworks, injecting `evaluate_tool_action()` validation before tool execution.
+- **Why we use it**: Automatically intercepts tool calls within agent orchestration frameworks, injecting `validate_tool_call()` validation before tool execution.
 - **Key Classes**:
-  - `GuardedTool`
+  - `GuardedTool`, `wrap_tool_function()`
 
 ---
 
-### 3.8 Examples & Demos (`examples/`)
+### 3.8 Web Framework Middleware (`agentprahari/middleware/`)
+
+#### `agentprahari/middleware/asgi.py` (`PrahariMiddleware`)
+- **Role**: Zero-code request firewall for FastAPI, Starlette, and ASGI web applications.
+- **Why we use it**: Eliminates route-by-route manual validation boilerplate. Secures an entire REST API with one line (`app.add_middleware(PrahariMiddleware)`).
+- **Internal Logic**:
+  - Intercepts incoming HTTP `POST`, `PUT`, `PATCH` requests.
+  - Reads and decodes JSON bodies without consuming the underlying stream.
+  - Scans candidate prompt keys (`prompt`, `message`, `query`, `input`, `text`, `messages`).
+  - Evaluates text using `shield.validate_input()`.
+  - On `ActionDecision.BLOCK`: Short-circuits immediately, returning a JSON response with status 400 and security violation details. Downstream handlers are never invoked.
+  - On `ActionDecision.SANITIZE`: In-place modifies the body payload with sanitized content (masked PII) so route handlers receive safe data.
+- **Key Classes**:
+  - `PrahariMiddleware`
+
+#### `agentprahari/middleware/flask.py` (`PrahariFlask`)
+- **Role**: Request guardrail extension for Flask WSGI applications.
+- **Why we use it**: Hooks into Flask's `before_request` lifecycle to validate incoming JSON payloads and block malicious injections or sanitize PII.
+- **Key Classes**:
+  - `PrahariFlask`
+
+---
+
+### 3.9 AI Framework Integrations (`agentprahari/integrations/`)
+
+#### `agentprahari/integrations/langchain.py` (`PrahariCallbackHandler`)
+- **Role**: Native LangChain Callback Handler.
+- **Why we use it**: Drops directly into LangChain `ChatOpenAI`, `LLMChain`, or `AgentExecutor` callbacks list to secure all inputs, tool executions, and model responses without altering agent chain code.
+- **Internal Logic**:
+  - `on_llm_start`: Inspects prompts before submission; raises `PrahariBlockedError` if an injection is detected.
+  - `on_tool_start`: Inspects tool name and arguments; raises `DangerousToolCallError` if destructive commands (`rm -rf`, `DROP TABLE`) are attempted.
+  - `on_llm_end`: Inspects generations for credential or system prompt leakage; sanitizes in-place or raises `PrahariBlockedError`.
+- **Key Classes**:
+  - `PrahariCallbackHandler`
+
+#### `agentprahari/integrations/crewai.py` (`PrahariCrewAITool`)
+- **Role**: Native tool wrapper for autonomous CrewAI agents.
+- **Why we use it**: Wraps CrewAI custom tools or `@tool` functions to intercept argument execution with `shield.validate_tool_call()`.
+- **Key Classes**:
+  - `PrahariCrewAITool`
+
+---
+
+### 3.10 Command-Line Interface & Sandbox (`agentprahari/cli.py`, `agentprahari/__main__.py`)
+
+#### `agentprahari/cli.py`
+- **Role**: Standalone CLI for instant sandbox testing, sanity checks, and CI/CD security gating.
+- **Why we use it**: Developers can test prompt injection defenses, PII masking, and dangerous command filtering directly from the terminal in 10 seconds without writing boilerplate Python code.
+- **Commands Provided**:
+  - `agentprahari check "<prompt>"`: Inspects prompt for injection, PII, and toxicity. Returns colorized decision (`[ALLOW]`, `[SANITIZE]`, `[BLOCK]`), violations, latency, and visual diffs. Supports `--json` flag for CI/CD scripting.
+  - `agentprahari check-tool <tool> "<args>"`: Inspects impending tool calls (e.g. `agentprahari check-tool bash "rm -rf /"`).
+  - `agentprahari check-output "<text>"`: Inspects model responses for leaked credentials or broken JSON.
+  - `agentprahari benchmark`: Executes local in-memory micro-benchmarks and outputs p50, p95, p99 latencies.
+  - `agentprahari version`: Displays version, presets, and metadata.
+
+#### `agentprahari/__main__.py`
+- **Role**: Entrypoint enabling `python -m agentprahari <subcommand>`.
+
+
+### 3.11 Examples & Demos (`examples/`)
 
 | File | Purpose & Demonstrated Pattern |
 | :--- | :--- |
@@ -557,7 +620,7 @@ Every guard evaluation produces an immutable decision object:
 
 ---
 
-### 3.9 Test Suites (`tests/`)
+### 3.12 Test Suites (`tests/`)
 
 The repository includes a comprehensive test suite executed via `pytest`:
 
@@ -566,6 +629,7 @@ The repository includes a comprehensive test suite executed via `pytest`:
 | `tests/test_custom_builder.py` | `PrahariBuilder`, `PrahariConfig` | Validates fluent builder mechanics, preset inheritance, and override behavior. |
 | `tests/test_diff_tracking.py` | `DiffTracker`, `PIIGuard` | Validates replacement tracking, diff structure, and secret masking in diff records. |
 | `tests/test_intelligent_judge.py` | `JudgementEngine` | Validates Tier-1 vs Tier-2 arbitration and fallback mechanics. |
+| `tests/test_middleware_and_cli.py` | `PrahariMiddleware`, `PrahariCallbackHandler`, `PrahariCrewAITool`, CLI, Aliases | Validates ASGI middleware blocking & sanitization, LangChain/CrewAI hooks, method aliases, and CLI commands. |
 | `tests/test_output_guards.py` | `SecretLeakGuard`, `JSONEnforcerGuard` | Validates JWT detection, multi-line key redaction, and JSON markdown repair. |
 | `tests/test_pii.py` | `PIIGuard` | Validates Luhn card checking, email/phone masking, and custom regex rules. |
 | `tests/test_prompt_injection.py` | `PromptInjectionGuard` | Validates override detection, instruction hierarchies, and Trojan bypasses. |
@@ -575,7 +639,7 @@ The repository includes a comprehensive test suite executed via `pytest`:
 
 ---
 
-### 3.10 Benchmark & Latency Tools
+### 3.13 Benchmark & Latency Tools
 
 #### `benchmark_latency.py`
 - **Role**: High-precision micro-benchmark runner.

@@ -459,6 +459,15 @@ class AgentPrahari:
         return result
 
     # -------------------------------------------------------------------------
+    # Method Aliases (Developer Ergonomics & Documentation Compatibility)
+    # -------------------------------------------------------------------------
+    evaluate_input = validate_input
+    evaluate_tool_call = validate_tool_call
+    evaluate_tool_action = validate_tool_call
+    evaluate_output = validate_output
+    reset_session = reset_agent_session
+
+    # -------------------------------------------------------------------------
     # Developer Wrappers & Integration Decorators
     # -------------------------------------------------------------------------
 
