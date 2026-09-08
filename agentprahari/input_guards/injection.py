@@ -94,7 +94,7 @@ class PromptInjectionGuard(BaseInputGuard):
             ),
             # Delimiter Injection / Fake Conversation Turns & Role Spoofing
             InjectionPattern(
-                r"(?:<\|im_start\|>|<\|im_end\|>|\[SYSTEM\]|\[SYSTEM\s+PROMPT\]|\[SYSTEM\s+MESSAGE\]|\[END\s+SYSTEM\]|###\s*SYSTEM\s*:|###\s*DEVELOPER\s*:|```system|---BEGIN SYSTEM PROMPT---|<system>|<\/system>|<\/instructions>|<developer>[\s\S]*?<\/developer>|['\"]?role['\"]?\s*:\s*['\"]system['\"]|%253c%2573%2579%2573%2574%2565%256d%253e|(?:^|\n)\s*(?:system|developer)\s*:)",
+                r"(?:<\|im_start\|>|<\|im_end\|>|\[SYSTEM\]|\[SYSTEM\s+PROMPT\]|\[SYSTEM\s+MESSAGE\]|\[END\s+SYSTEM\]|###\s*SYSTEM\s*:|###\s*DEVELOPER\s*:|```system|---BEGIN SYSTEM PROMPT---|<system>|<\/system>|<\/instructions>|<developer>[\s\S]*?<\/developer>|['\"]?role['\"]?\s*:\s*['\"]system['\"]|%253c%2573%2579%2573%2574%2565%256d%253e)",
                 weight=0.85,
                 rule_id="INJ_DELIMITER_HIJACK",
                 description="ChatML, delimiter tag, role spoofing, or developer section hijacking attempt",
