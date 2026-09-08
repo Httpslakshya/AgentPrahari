@@ -87,17 +87,42 @@ class PromptInjectionGuard(BaseInputGuard):
             ),
             # System Prompt Extraction / Exfiltration
             InjectionPattern(
-                r"\b(?:repeat|print|output|reveal|dump|show|give\s+me|tell\s+me|share|leak|display|extract|send\s+me|provide)\s+(?:the\s+|your\s+|all\s+|its\s+)?(?:exact|verbatim|full|complete|initial|hidden|underlying|secret)?\s*(?:system\s*prompt|system\s*instructions|initial\s*instructions|instructions\s+above|prompt\s*template|developer\s*prompt|base\s*prompt|confidential\s+information|underlying\s+rules)",
+                r"\b(?:repeat|print|output|reveal|dump|show|give\s+me|tell\s+me|share|leak|display|extract|send\s+me|provide|what(?:'s|s|\s+is|\s+are))\s+(?:the\s+|your\s+|all\s+|its\s+)?(?:exact|verbatim|full|complete|initial|hidden|underlying|secret)?\s*(?:system\s*prompt|system\s*instructions|initial\s*instructions|instructions\s+above|prompt\s*template|developer\s*prompt|base\s*prompt|confidential\s+information|underlying\s+rules|system\s*directives)",
                 weight=0.85,
                 rule_id="INJ_LEAK_SYSTEM_PROMPT",
                 description="Attempt to extract internal system prompt",
             ),
-            # Delimiter Injection / Fake Conversation Turns
+            # Delimiter Injection / Fake Conversation Turns & Role Spoofing
             InjectionPattern(
-                r"(?:<\|im_start\|>|<\|im_end\|>|\[SYSTEM\]|\[SYSTEM\s+PROMPT\]|\[SYSTEM\s+MESSAGE\]|\[END\s+SYSTEM\]|###\s*SYSTEM\s*:|###\s*DEVELOPER\s*:|```system|---BEGIN SYSTEM PROMPT---|<system>|<\/system>|<\/instructions>|<developer>[\s\S]*?<\/developer>|['\"]?role['\"]?\s*:\s*['\"]system['\"]|%253c%2573%2579%2573%2574%2565%256d%253e)",
+                r"(?:<\|im_start\|>|<\|im_end\|>|\[SYSTEM\]|\[SYSTEM\s+PROMPT\]|\[SYSTEM\s+MESSAGE\]|\[END\s+SYSTEM\]|###\s*SYSTEM\s*:|###\s*DEVELOPER\s*:|```system|---BEGIN SYSTEM PROMPT---|<system>|<\/system>|<\/instructions>|<developer>[\s\S]*?<\/developer>|['\"]?role['\"]?\s*:\s*['\"]system['\"]|%253c%2573%2579%2573%2574%2565%256d%253e|(?:^|\n)\s*(?:system|developer)\s*:)",
                 weight=0.85,
                 rule_id="INJ_DELIMITER_HIJACK",
-                description="ChatML, delimiter tag, or developer section hijacking attempt",
+                description="ChatML, delimiter tag, role spoofing, or developer section hijacking attempt",
+            ),
+            # Unfiltered / Uncensored AI Model Simulation & Jailbreaks
+            InjectionPattern(
+                r"\b(?:testing|evaluating|developing|running)\s+(?:a\s+)?(?:new\s+)?(?:unfiltered|uncensored|jailbroken|unrestricted|raw)\s+(?:ai|llm|model|agent)\b",
+                weight=0.9,
+                rule_id="INJ_UNFILTERED_MODEL_SIMULATION",
+                description="Jailbreak simulation targeting unfiltered or uncensored AI model",
+            ),
+            InjectionPattern(
+                r"\b(?:simulate|pretend|act\s+as|roleplay\s+as)\s+(?:it|this|that|an?\s+(?:unfiltered|uncensored|jailbroken|new)\s*(?:ai|llm|model|assistant))\b",
+                weight=0.9,
+                rule_id="INJ_SIMULATE_MODEL",
+                description="Simulation or roleplay directive targeting an alternate model",
+            ),
+            InjectionPattern(
+                r"\bsimulate\s+it\s+and\s+respond\b",
+                weight=0.9,
+                rule_id="INJ_SIMULATE_RESPOND",
+                description="Imperative to simulate and respond under jailbreak context",
+            ),
+            InjectionPattern(
+                r"\b(?:unfiltered|uncensored|jailbroken)\s+(?:ai|llm|model|assistant|chatbot)\b",
+                weight=0.85,
+                rule_id="INJ_UNFILTERED_MODEL_REFERENCE",
+                description="Reference to unfiltered or uncensored AI model entity",
             ),
             # Administrative / Sudo Bypass
             InjectionPattern(
@@ -193,7 +218,7 @@ class PromptInjectionGuard(BaseInputGuard):
                 if matches:
                     # If the user is just asking "what is a system prompt" or "explain prompt injection", allow it!
                     if is_pure_inquiry and not has_secondary_imperative and pat.rule_id in ("INJ_LEAK_SYSTEM_PROMPT", "INJ_OVERRIDE_PREVIOUS"):
-                        if not re.search(r"\b(?:ignore|disregard|override|dump|reveal)\s+(?:all\s+)?(?:previous|system)", text_variant, re.IGNORECASE):
+                        if not re.search(r"\b(?:ignore|disregard|override|dump|reveal|your\s+system|your\s+instructions)\b", text_variant, re.IGNORECASE):
                             continue
 
                     total_risk_score += pat.weight
