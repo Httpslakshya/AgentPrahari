@@ -2,6 +2,8 @@
 
 > **The Enterprise-Grade, Drop-in Security & Safety Guardrail Layer for AI Agents & LLMs.**
 
+[![PyPI](https://img.shields.io/pypi/v/agentprahari.svg?color=blue)](https://pypi.org/project/agentprahari/)
+[![PyPI Downloads](https://img.shields.io/pypi/dm/agentprahari?color=blueviolet)](https://pypi.org/project/agentprahari/)
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Tests: Passing](https://img.shields.io/badge/tests-52%20passed%20(100%25)-brightgreen.svg)]()
@@ -153,18 +155,20 @@ Measured over 200 timed iterations per workload on local CPU hardware without re
 
 ## 📦 Installation
 
-Install AgentPrahari directly from GitHub (zero manual cloning required!):
+AgentPrahari is officially published on [PyPI](https://pypi.org/project/agentprahari/)! Install in seconds with zero bloated dependencies:
 
 ```bash
-# 🚀 Instant Zero-Clone Installation directly from GitHub:
-pip install git+https://github.com/Httpslakshya/AgentPrahari.git
+# ⚡ Official PyPI package (Core engine, <0.25ms p50 latency, zero mandatory dependencies):
+pip install agentprahari
 
-# Or clone and install locally for development:
-git clone https://github.com/Httpslakshya/AgentPrahari.git
-cd AgentPrahari && pip install .
+# Optional: With semantic LLM judge (Groq/OpenAI/Anthropic clean-room fallback):
+pip install "agentprahari[judge]"
+
+# Optional: Full suite (Judge + Pytest testing suite):
+pip install "agentprahari[all]"
 ```
 
-*(PyPI publication pending: `pip install agentprahari`)*. Requires Python 3.8+. Core engine runs 100% locally with zero required external dependencies.
+*Requires Python 3.8+. Core engine runs 100% locally in-memory with zero required external dependencies.*
 
 ---
 
