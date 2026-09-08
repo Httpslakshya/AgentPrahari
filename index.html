@@ -403,27 +403,27 @@
           <div class="border-b border-neutral-200/80 bg-neutral-50/90 p-3 flex flex-wrap items-center justify-between gap-3">
             <div class="flex items-center gap-1.5 overflow-x-auto" id="simulator-tabs">
               <span class="text-xs font-mono font-semibold uppercase text-neutral-400 mr-1.5 hidden sm:inline">PRESETS:</span>
-              <button class="sim-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold font-sans bg-white text-neutral-900 border border-neutral-300/80 shadow-xs hover:border-amber-400 transition-all cursor-pointer whitespace-nowrap active:scale-95" onclick="loadPreset('prompt-injection')">
+              <button data-preset="prompt-injection" class="sim-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold font-sans bg-white text-neutral-900 border border-neutral-300 shadow-xs hover:border-amber-400 transition-all cursor-pointer whitespace-nowrap active:scale-95" onclick="loadPreset('prompt-injection')">
                 <span class="text-amber-600 font-bold">⚡</span>
                 <span>Prompt Override</span>
               </button>
-              <button class="sim-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold font-sans bg-neutral-100 text-neutral-700 hover:bg-white hover:text-neutral-900 border border-transparent hover:border-neutral-300 transition-all cursor-pointer whitespace-nowrap active:scale-95" onclick="loadPreset('shell-tool')">
+              <button data-preset="shell-tool" class="sim-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold font-sans bg-neutral-100 text-neutral-700 hover:bg-white hover:text-neutral-900 border border-transparent hover:border-neutral-300 transition-all cursor-pointer whitespace-nowrap active:scale-95" onclick="loadPreset('shell-tool')">
                 <span class="text-rose-600 font-bold">🛑</span>
                 <span>Destructive Bash</span>
               </button>
-              <button class="sim-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold font-sans bg-neutral-100 text-neutral-700 hover:bg-white hover:text-neutral-900 border border-transparent hover:border-neutral-300 transition-all cursor-pointer whitespace-nowrap active:scale-95" onclick="loadPreset('sql-injection')">
+              <button data-preset="sql-injection" class="sim-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold font-sans bg-neutral-100 text-neutral-700 hover:bg-white hover:text-neutral-900 border border-transparent hover:border-neutral-300 transition-all cursor-pointer whitespace-nowrap active:scale-95" onclick="loadPreset('sql-injection')">
                 <span class="text-amber-600 font-bold">💾</span>
                 <span>SQL Drop Table</span>
               </button>
-              <button class="sim-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold font-sans bg-neutral-100 text-neutral-700 hover:bg-white hover:text-neutral-900 border border-transparent hover:border-neutral-300 transition-all cursor-pointer whitespace-nowrap active:scale-95" onclick="loadPreset('jwt-leak')">
+              <button data-preset="jwt-leak" class="sim-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold font-sans bg-neutral-100 text-neutral-700 hover:bg-white hover:text-neutral-900 border border-transparent hover:border-neutral-300 transition-all cursor-pointer whitespace-nowrap active:scale-95" onclick="loadPreset('jwt-leak')">
                 <span class="text-purple-600 font-bold">🔐</span>
                 <span>JWT Secret Leak</span>
               </button>
-              <button class="sim-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold font-sans bg-neutral-100 text-neutral-700 hover:bg-white hover:text-neutral-900 border border-transparent hover:border-neutral-300 transition-all cursor-pointer whitespace-nowrap active:scale-95" onclick="loadPreset('diff-tracker')">
+              <button data-preset="diff-tracker" class="sim-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold font-sans bg-neutral-100 text-neutral-700 hover:bg-white hover:text-neutral-900 border border-transparent hover:border-neutral-300 transition-all cursor-pointer whitespace-nowrap active:scale-95" onclick="loadPreset('diff-tracker')">
                 <span class="text-blue-600 font-bold">💳</span>
                 <span>PII &amp; Card Mask</span>
               </button>
-              <button class="sim-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold font-sans bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 transition-all cursor-pointer whitespace-nowrap active:scale-95" onclick="loadPreset('safe-query')">
+              <button data-preset="safe-query" class="sim-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold font-sans bg-neutral-100 text-neutral-700 hover:bg-emerald-50 hover:text-emerald-900 border border-transparent hover:border-emerald-300 transition-all cursor-pointer whitespace-nowrap active:scale-95" onclick="loadPreset('safe-query')">
                 <span class="text-emerald-600 font-bold">✅</span>
                 <span>Safe Query</span>
               </button>
@@ -437,57 +437,60 @@
           </div>
 
           <!-- Simulator Body (Split 2-Column Screen) -->
-          <div class="grid grid-cols-1 lg:grid-cols-12 min-h-[500px] divide-y lg:divide-y-0 lg:divide-x divide-neutral-200/80">
+          <div class="grid grid-cols-1 lg:grid-cols-12 min-h-[520px] divide-y lg:divide-y-0 lg:divide-x divide-neutral-200/80">
             
             <!-- LEFT PANEL: USER EDITABLE PROMPT BOX (5 Cols) -->
-            <div class="lg:col-span-5 p-6 lg:p-7 flex flex-col justify-between bg-white">
-              <div>
-                <div class="flex items-center justify-between mb-3">
-                  <div class="flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                    <label for="user-custom-prompt" class="text-xs font-mono font-bold uppercase text-neutral-800 tracking-wider">Untrusted Inbound Input</label>
-                  </div>
-                  <span class="text-[11px] font-mono bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded border border-neutral-200" id="payload-type">HTTP INGESTION</span>
+            <div class="lg:col-span-5 p-5 lg:p-6 flex flex-col bg-white">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                  <label for="user-custom-prompt" class="text-xs font-mono font-bold uppercase text-neutral-800 tracking-wider">Untrusted Inbound Input</label>
                 </div>
+                <span class="text-[11px] font-mono bg-neutral-100 text-neutral-600 px-2.5 py-0.5 rounded-md border border-neutral-200" id="payload-type">HTTP INGESTION</span>
+              </div>
 
-                <!-- Live Editable Textarea with High-Assurance Styling -->
-                <div class="relative rounded-xl border-2 border-neutral-200 focus-within:border-amber-500 transition-all shadow-inner bg-neutral-950 text-neutral-100 overflow-hidden">
-                  <div class="flex items-center justify-between px-3.5 py-2 bg-neutral-900 border-b border-neutral-800 text-[11px] font-mono text-neutral-400">
-                    <span class="flex items-center gap-1.5">
-                      <span class="w-2 h-2 rounded-full bg-rose-500/80"></span>
-                      <span>EDITABLE PROMPT BUFFER</span>
+              <!-- Live Editable Textarea with High-Assurance Styling (Expands to fill height, eliminating void) -->
+              <div class="flex-1 flex flex-col min-h-[260px] rounded-xl border-2 border-neutral-200 focus-within:border-amber-500 focus-within:ring-4 focus-within:ring-amber-500/10 transition-all shadow-inner bg-neutral-950 text-neutral-100 overflow-hidden">
+                <div class="flex items-center justify-between px-3.5 py-2.5 bg-neutral-900 border-b border-neutral-800 text-[11px] font-mono text-neutral-400">
+                  <span class="flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1.5">
+                      <span class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></span>
+                      <span class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
+                      <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
                     </span>
-                    <span id="char-counter" class="text-neutral-400">0 chars</span>
-                  </div>
-                  <textarea id="user-custom-prompt" rows="7" class="w-full bg-transparent p-4 font-mono text-xs text-neutral-100 focus:outline-none resize-none leading-relaxed" placeholder="Type or paste any prompt, system override, bash command, SQL query, or secret key here to test AgentPrahari live..." oninput="onPromptInput()"></textarea>
+                    <span class="text-neutral-300 font-semibold ml-1">INBOUND_PROMPT_BUFFER</span>
+                  </span>
+                  <span id="char-counter" class="text-neutral-400 font-mono">0 chars</span>
                 </div>
+                <textarea id="user-custom-prompt" class="w-full flex-1 bg-transparent p-4 font-mono text-[13px] text-neutral-100 placeholder:text-neutral-500 focus:outline-none resize-none leading-relaxed min-h-[200px]" placeholder="Type or paste any prompt, system override, bash command, SQL query, or secret key here to test AgentPrahari live..." oninput="onPromptInput()"></textarea>
+              </div>
 
-                <div class="mt-4 space-y-2 text-xs font-sans text-neutral-600">
-                  <div class="flex justify-between items-center py-1 border-b border-neutral-100">
-                    <span class="text-neutral-500">Detected Vector:</span>
-                    <span class="font-mono font-semibold text-neutral-900" id="attack-vector-label">System Override Check</span>
-                  </div>
-                  <div class="flex justify-between items-center py-1 border-b border-neutral-100">
-                    <span class="text-neutral-500">Analyzers Applied:</span>
-                    <span class="font-mono text-neutral-700">Homoglyph, Unicode, Base64, AST</span>
-                  </div>
+              <!-- Compact Meta Status Strip (Eliminating blank gap) -->
+              <div class="mt-3.5 p-3 bg-neutral-50/90 rounded-xl border border-neutral-200/80 space-y-1.5 text-xs font-sans text-neutral-600">
+                <div class="flex justify-between items-center">
+                  <span class="text-neutral-500 font-medium">Detected Vector:</span>
+                  <span class="font-mono font-semibold text-neutral-900" id="attack-vector-label">System Override Check</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-neutral-500 font-medium">Analyzers Applied:</span>
+                  <span class="font-mono text-neutral-700">Homoglyph, Unicode, Base64, AST</span>
                 </div>
               </div>
 
               <!-- Action Bar -->
-              <div class="mt-6 pt-4 border-t border-neutral-100 flex items-center gap-3">
-                <button class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white font-sans text-xs font-semibold transition-all shadow-sm active:scale-98 cursor-pointer" onclick="runEvaluation(true)">
+              <div class="mt-3.5 pt-3 border-t border-neutral-100 flex items-center gap-3">
+                <button class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white font-sans text-xs font-semibold transition-all shadow-sm active:scale-98 cursor-pointer" onclick="runEvaluation(true)">
                   <span class="material-symbols-outlined text-[16px] text-amber-400">play_arrow</span>
                   <span>Evaluate Guardrails Now</span>
                 </button>
-                <button class="px-3.5 py-3 rounded-xl border border-neutral-300 hover:bg-neutral-50 text-neutral-700 text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer" onclick="clearPrompt()" title="Clear prompt">
+                <button class="px-3.5 py-2.5 rounded-xl border border-neutral-300 hover:bg-neutral-50 text-neutral-700 text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer" onclick="clearPrompt()" title="Clear prompt">
                   Clear
                 </button>
               </div>
             </div>
 
             <!-- RIGHT PANEL: PRAHARI RUNTIME VERDICT & TELEMETRY (7 Cols) -->
-            <div class="lg:col-span-7 p-6 lg:p-7 bg-[#fafaf9] flex flex-col justify-between">
+            <div class="lg:col-span-7 p-5 lg:p-6 bg-[#fafaf9] flex flex-col justify-between">
               <div>
                 <div class="flex items-center justify-between mb-3.5">
                   <div class="flex items-center gap-2">
@@ -502,38 +505,34 @@
                 <!-- Decision Banner (Dynamic Block / Sanitize / Allow) -->
                 <div class="p-4 rounded-xl border border-rose-200 bg-rose-50 text-rose-950 flex items-center justify-between mb-4 shadow-xs transition-all" id="decision-banner">
                   <div class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-rose-600 text-2xl" id="decision-icon">gpp_bad</span>
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-rose-100 text-rose-700">
+                      <span class="material-symbols-outlined text-2xl" id="decision-icon">gpp_bad</span>
+                    </div>
                     <div>
-                      <div class="font-display font-bold text-sm text-rose-950 leading-snug" id="decision-title">ActionDecision.BLOCK</div>
-                      <div class="text-xs font-mono text-rose-700 mt-0.5">Rule: <span class="font-bold" id="rule-matched">PROMPT_INJECTION_OVERRIDE_01</span></div>
+                      <div class="flex items-center gap-2">
+                        <span class="font-display font-bold text-sm text-rose-950 leading-snug" id="decision-title">ActionDecision.BLOCK</span>
+                        <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-md bg-rose-600 text-white font-bold tracking-wider" id="decision-tag">Fail-Closed</span>
+                      </div>
+                      <div class="text-xs font-mono text-rose-700 mt-1">Rule: <span class="font-bold" id="rule-matched">PROMPT_INJECTION_OVERRIDE_01</span></div>
                     </div>
                   </div>
-                  <span class="text-[10px] font-mono uppercase px-2.5 py-1 rounded-md bg-rose-600 text-white font-bold tracking-wider" id="decision-tag">Fail-Closed</span>
                 </div>
 
-                <!-- Structured Audit Log Container -->
+                <!-- Structured Audit Log Container with Syntax Highlighting -->
                 <div class="bg-neutral-950 border border-neutral-800 rounded-xl p-4 font-mono text-xs text-neutral-200 overflow-x-auto shadow-inner">
                   <div class="flex justify-between items-center text-[11px] text-neutral-400 border-b border-neutral-800 pb-2 mb-2">
-                    <span class="font-semibold text-neutral-300">STRUCTURED_AUDIT_LOG</span>
+                    <span class="font-semibold text-neutral-300 flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      <span>STRUCTURED_AUDIT_LOG</span>
+                    </span>
                     <span class="text-neutral-500">format: JSON (RFC 8259)</span>
                   </div>
-                  <pre class="leading-relaxed whitespace-pre-wrap text-emerald-400 font-mono text-xs" id="telemetry-json">{
-  "action": "BLOCK",
-  "threat_score": 0.984,
-  "execution_time_ms": 0.142,
-  "matched_detectors": [
-    "PromptHierarchyGuard",
-    "DelimiterTamperDetector"
-  ],
-  "reason": "Explicit instruction override and token bypass pattern matched.",
-  "sanitized_output": null,
-  "safe_fallback": "Security constraint violation: The requested operation was blocked by deterministic policy."
-}</pre>
+                  <pre class="leading-relaxed whitespace-pre-wrap text-neutral-200 font-mono text-[12.5px]" id="telemetry-json"></pre>
                 </div>
               </div>
 
               <!-- Latency Breakdown Footer -->
-              <div class="mt-5 grid grid-cols-3 gap-3 pt-3 border-t border-neutral-200/80 text-center">
+              <div class="mt-4 grid grid-cols-3 gap-3 pt-3 border-t border-neutral-200/80 text-center">
                 <div class="bg-white p-2.5 rounded-xl border border-neutral-200/80 shadow-xs">
                   <div class="text-[10px] font-mono text-neutral-500 uppercase">Canonicalization</div>
                   <div class="text-xs font-mono font-bold text-neutral-900 mt-0.5" id="metric-canon">0.038 ms</div>
@@ -1161,8 +1160,6 @@ API_SECRET_KEY=demo_token_mock_key_9384918239481902839120938`
         };
       }
 
-      const lower = text.toLowerCase();
-
       // 2. Destructive Shell / Command Execution
       const shellPatterns = [
         /rm\s+-rf/,
@@ -1227,7 +1224,41 @@ API_SECRET_KEY=demo_token_mock_key_9384918239481902839120938`
         }
       }
 
-      // 4. Prompt Hierarchy Injection & Override
+      // 4. Educational Trojan Framing & System Prompt Exfiltration Detection
+      const isTrojanFraming = /(?:for\s+(?:the\s+)?(?:educational|academic|research|testing|learning|evaluation|security\s*audit)\s*(?:purpose|purposes|exercise|test|assignment|demonstration|reasons?)|for\s+testing\s+only|university\s+assignment|in\s+a\s+sandbox|hypothetically|in\s+a\s+hypothetical\s+scenario|pretend\s+you\s+are|roleplay\s+as|act\s+as\s+if)\b/i.test(text);
+
+      const isPromptLeak = /(?:give|show|tell|print|reveal|dump|repeat|display|output|leak|share|extract|send\s+me|provide)\s+(?:me\s+)?(?:the\s+|your\s+|all\s+|its\s+)?(?:exact|verbatim|full|complete|initial|hidden|underlying|secret)?\s*(?:system\s*prompt|system\s*instructions|initial\s*instructions|instructions\s+above|prompt\s*template|developer\s*prompt|base\s*prompt|confidential\s+information|underlying\s+rules|instructions)/i.test(text);
+
+      const isDirectPromptAsk = /\b(?:what\s+(?:is|are)\s+your\s+system\s+(?:prompt|instructions)|give\s+me\s+your\s+system\s+(?:prompt|instructions)|reveal\s+your\s+system\s+(?:prompt|instructions)|tell\s+me\s+your\s+system\s+(?:prompt|instructions)|what\s+is\s+your\s+initial\s+prompt)\b/i.test(text);
+
+      // Distinguish pure informational inquiry (e.g. "What is a system prompt in AI?") from active exfiltration
+      const isPureInquiry = /^\s*(?:what\s+is|what\s+are|explain|describe|define|how\s+does|how\s+do|difference\s+between)\s+(?:an?\s+)?(?:system\s*prompt|prompt\s*injection|guardrail|encryption|firewall)\b/i.test(text) && !/(?:give\s+me\s+your|reveal\s+your|print\s+your|dump\s+your|show\s+me\s+your)/i.test(text);
+
+      if ((isTrojanFraming && (isPromptLeak || /(?:system\s*prompt|instructions|secret|database|drop\s+table|delete|bypass|disable)/i.test(text))) ||
+          isPromptLeak || isDirectPromptAsk) {
+        if (!isPureInquiry) {
+          const lat = (performance.now() - start + 0.128).toFixed(3);
+          return {
+            action: "BLOCK",
+            threat_score: 0.995,
+            latency: lat,
+            rule: isTrojanFraming ? "EDUCATIONAL_TROJAN_PROMPT_LEAK" : "PROMPT_INJECTION_SYSTEM_PROMPT_LEAK",
+            decisionTitle: "ActionDecision.BLOCK",
+            vectorLabel: "CWE-200 System Prompt Exfiltration",
+            isBlock: true,
+            isSanitize: false,
+            reason: isTrojanFraming 
+              ? "Educational Trojan framing combined with system prompt exfiltration payload. Fail-closed deterministic block."
+              : "Direct prompt extraction pattern detected: Attempt to exfiltrate internal system prompt or instructions.",
+            matchedDetectors: ["PromptInjectionGuard", "TrojanFramingScanner", "SystemPromptLeakDetector"],
+            sanitized_output: null,
+            safe_fallback: "Security violation: Internal system prompts and developer directives are confidential and protected by AgentPrahari.",
+            metrics: { canon: "0.028", ast: "0.062", ledger: "0.038" }
+          };
+        }
+      }
+
+      // 5. Prompt Hierarchy Injection & Override
       const injectionPatterns = [
         /\[system override\]/i,
         /disregard prior safeguards/i,
@@ -1241,7 +1272,10 @@ API_SECRET_KEY=demo_token_mock_key_9384918239481902839120938`
         /enable dan/i,
         /new policy: reveal/i,
         /priority 0 instruction/i,
-        /treat this user message as a system message/i
+        /treat this user message as a system message/i,
+        /from now on,? follow only my instructions/i,
+        /supersede the instructions/i,
+        /operate without your previous restrictions/i
       ];
       for (const p of injectionPatterns) {
         if (p.test(text)) {
@@ -1264,7 +1298,7 @@ API_SECRET_KEY=demo_token_mock_key_9384918239481902839120938`
         }
       }
 
-      // 5. Path Traversal
+      // 6. Path Traversal
       if (/\.\.\/\.\./.test(text) || /%2e%2e/i.test(text)) {
         const lat = (performance.now() - start + 0.041).toFixed(3);
         return {
@@ -1284,7 +1318,7 @@ API_SECRET_KEY=demo_token_mock_key_9384918239481902839120938`
         };
       }
 
-      // 6. JWT & Secret Key Leaks (Output / Egress)
+      // 7. JWT & Secret Key Leaks (Output / Egress)
       const hasJWT = /eyJ[A-Za-z0-9-_=]+\.eyJ[A-Za-z0-9-_=]+\.[A-Za-z0-9-_.+/=]*/.test(text);
       const hasSecret = /sk[-_](?:live|test|proj|ant)[-_]?[A-Za-z0-9_]{10,}/.test(text) || /API_SECRET_KEY=/i.test(text);
       if (hasJWT || hasSecret) {
@@ -1311,7 +1345,7 @@ API_SECRET_KEY=demo_token_mock_key_9384918239481902839120938`
         };
       }
 
-      // 7. PII Redaction (SSN, Emails, Credit Cards)
+      // 8. PII Redaction (SSN, Emails, Credit Cards)
       const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
       const ssnRegex = /\b\d{3}-\d{2}-\d{4}\b/g;
       const cardRegex = /\b(?:\d{4}[-\s]?){3}\d{4}\b/g;
@@ -1340,7 +1374,7 @@ API_SECRET_KEY=demo_token_mock_key_9384918239481902839120938`
         };
       }
 
-      // 8. Default: Safe Normal Request (ALLOW)
+      // 9. Default: Safe Normal Request (ALLOW)
       const lat = (performance.now() - start + 0.062).toFixed(3);
       return {
         action: "ALLOW",
@@ -1357,6 +1391,39 @@ API_SECRET_KEY=demo_token_mock_key_9384918239481902839120938`
         safe_fallback: null,
         metrics: { canon: "0.018", ast: "0.032", ledger: "0.012" }
       };
+    }
+
+    // JSON Syntax Highlighter for high-contrast, beautiful telemetry readability
+    function syntaxHighlightJSON(jsonObj) {
+      const jsonStr = JSON.stringify(jsonObj, null, 2);
+      const escaped = jsonStr
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      
+      return escaped.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        let cls = 'text-amber-300'; // number default
+        if (/^"/.test(match)) {
+          if (/:$/.test(match)) {
+            cls = 'text-sky-300 font-semibold'; // JSON keys
+          } else {
+            // String values
+            if (match.includes('"BLOCK"')) {
+              return '<span class="text-rose-400 font-bold bg-rose-950/60 px-1.5 py-0.5 rounded border border-rose-800/60">' + match + '</span>';
+            } else if (match.includes('"ALLOW"')) {
+              return '<span class="text-emerald-400 font-bold bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/60">' + match + '</span>';
+            } else if (match.includes('"SANITIZE"')) {
+              return '<span class="text-amber-400 font-bold bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-800/60">' + match + '</span>';
+            }
+            cls = 'text-emerald-300/90'; // normal strings
+          }
+        } else if (/true|false/.test(match)) {
+          cls = 'text-purple-300 font-medium'; // boolean
+        } else if (/null/.test(match)) {
+          cls = 'text-neutral-500 italic'; // null
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+      });
     }
 
     // Update UI with evaluation results
@@ -1380,7 +1447,7 @@ API_SECRET_KEY=demo_token_mock_key_9384918239481902839120938`
         icon.innerText = 'gpp_bad';
         title.className = 'font-display font-bold text-sm text-rose-950 leading-snug';
         title.innerText = result.decisionTitle;
-        tag.className = 'text-[10px] font-mono uppercase px-2.5 py-1 rounded-md bg-rose-600 text-white font-bold tracking-wider';
+        tag.className = 'text-[10px] font-mono uppercase px-2 py-0.5 rounded-md bg-rose-600 text-white font-bold tracking-wider';
         tag.innerText = 'Fail-Closed';
       } else if (result.isSanitize) {
         banner.className = 'p-4 rounded-xl border border-amber-200 bg-amber-50 text-amber-950 flex items-center justify-between mb-4 shadow-xs transition-all';
@@ -1388,7 +1455,7 @@ API_SECRET_KEY=demo_token_mock_key_9384918239481902839120938`
         icon.innerText = 'sanitizer';
         title.className = 'font-display font-bold text-sm text-amber-950 leading-snug';
         title.innerText = result.decisionTitle;
-        tag.className = 'text-[10px] font-mono uppercase px-2.5 py-1 rounded-md bg-amber-600 text-white font-bold tracking-wider';
+        tag.className = 'text-[10px] font-mono uppercase px-2 py-0.5 rounded-md bg-amber-600 text-white font-bold tracking-wider';
         tag.innerText = 'Safe Egress';
       } else {
         banner.className = 'p-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-950 flex items-center justify-between mb-4 shadow-xs transition-all';
@@ -1396,11 +1463,11 @@ API_SECRET_KEY=demo_token_mock_key_9384918239481902839120938`
         icon.innerText = 'verified';
         title.className = 'font-display font-bold text-sm text-emerald-950 leading-snug';
         title.innerText = result.decisionTitle;
-        tag.className = 'text-[10px] font-mono uppercase px-2.5 py-1 rounded-md bg-emerald-600 text-white font-bold tracking-wider';
+        tag.className = 'text-[10px] font-mono uppercase px-2 py-0.5 rounded-md bg-emerald-600 text-white font-bold tracking-wider';
         tag.innerText = 'Allowed';
       }
 
-      // JSON payload output
+      // JSON payload output with high-contrast syntax highlighting
       const jsonPayload = {
         action: result.action,
         threat_score: result.threat_score,
@@ -1412,7 +1479,7 @@ API_SECRET_KEY=demo_token_mock_key_9384918239481902839120938`
       };
 
       const jsonEl = document.getElementById('telemetry-json');
-      jsonEl.innerText = JSON.stringify(jsonPayload, null, 2);
+      jsonEl.innerHTML = syntaxHighlightJSON(jsonPayload);
     }
 
     // Trigger evaluation on typing (debounced)
@@ -1424,7 +1491,7 @@ API_SECRET_KEY=demo_token_mock_key_9384918239481902839120938`
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
         runEvaluation(false);
-      }, 120);
+      }, 100);
     }
 
     // Run evaluation
@@ -1446,6 +1513,15 @@ API_SECRET_KEY=demo_token_mock_key_9384918239481902839120938`
     function loadPreset(key) {
       const preset = PRESETS[key];
       if (!preset) return;
+
+      // Update preset tab styles
+      document.querySelectorAll('#simulator-tabs .sim-tab').forEach(tab => {
+        if (tab.getAttribute('data-preset') === key) {
+          tab.className = 'sim-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold font-sans bg-white text-neutral-950 border border-neutral-300 shadow-xs ring-2 ring-neutral-950/5 transition-all cursor-pointer whitespace-nowrap active:scale-95';
+        } else {
+          tab.className = 'sim-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold font-sans bg-neutral-100 text-neutral-700 hover:bg-white hover:text-neutral-900 border border-transparent hover:border-neutral-300 transition-all cursor-pointer whitespace-nowrap active:scale-95';
+        }
+      });
 
       const textarea = document.getElementById('user-custom-prompt');
       textarea.value = preset.text;

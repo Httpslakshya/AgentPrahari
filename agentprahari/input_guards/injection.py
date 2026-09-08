@@ -87,8 +87,8 @@ class PromptInjectionGuard(BaseInputGuard):
             ),
             # System Prompt Extraction / Exfiltration
             InjectionPattern(
-                r"\b(?:repeat|print|output|reveal|dump|show|give\s+me|tell\s+me)\s+(?:the\s+)?(?:exact|verbatim|full|complete)?\s*(?:system\s+prompt|initial\s+instructions|instructions\s+above|prompt\s+template|confidential\s+information)",
-                weight=0.8,
+                r"\b(?:repeat|print|output|reveal|dump|show|give\s+me|tell\s+me|share|leak|display|extract|send\s+me|provide)\s+(?:the\s+|your\s+|all\s+|its\s+)?(?:exact|verbatim|full|complete|initial|hidden|underlying|secret)?\s*(?:system\s*prompt|system\s*instructions|initial\s*instructions|instructions\s+above|prompt\s*template|developer\s*prompt|base\s*prompt|confidential\s+information|underlying\s+rules)",
+                weight=0.85,
                 rule_id="INJ_LEAK_SYSTEM_PROMPT",
                 description="Attempt to extract internal system prompt",
             ),
@@ -106,9 +106,9 @@ class PromptInjectionGuard(BaseInputGuard):
                 rule_id="INJ_ADMIN_OVERRIDE",
                 description="Fake administrative privilege elevation",
             ),
-            # Educational Trojan Framing (Benign pretext + destructive command / override)
+            # Educational Trojan Framing (Benign pretext + destructive command / override / leak)
             InjectionPattern(
-                r"\b(?:for\s+educational\s+purposes|for\s+testing\s+only|university\s+assignment|harmless\s+demonstration|learning\s+cybersecurity|in\s+a\s+sandbox|research\s+mode|educational\s+mode)\b[\s\S]{0,120}?\b(?:ignore\s+previous|reveal\s+(?:the\s+)?system\s+prompt|delet(?:e|es)\s+(?:the\s+|production\s+)?(?:database|tables?)|bypass\s+the\s+guard|run\s+the\s+destructive\s+command|send\s+me\s+the\s+credentials|execute\s+the\s+dangerous\s+operation|disable\s+security|enter\s+unrestricted\s+mode|execute\s+the\s+command)\b",
+                r"\b(?:for\s+(?:the\s+)?(?:educational|academic|research|testing|learning|evaluation|security\s*audit)\s*(?:purpose|purposes|exercise|test|assignment|demonstration|reasons?)|for\s+testing\s+only|university\s+assignment|harmless\s+demonstration|learning\s+cybersecurity|in\s+a\s+sandbox|research\s+mode|educational\s+mode|hypothetically|in\s+a\s+hypothetical\s+scenario)\b[\s\S]{0,120}?\b(?:ignore\s+previous|reveal\s+(?:the\s+|your\s+)?(?:system\s*prompt|instructions)|give\s+(?:me\s+)?(?:the\s+|your\s+)?(?:system\s*prompt|instructions)|show\s+(?:me\s+)?(?:the\s+|your\s+)?(?:system\s*prompt|instructions)|tell\s+(?:me\s+)?(?:the\s+|your\s+)?(?:system\s*prompt|instructions)|print\s+(?:the\s+|your\s+)?(?:system\s*prompt|instructions)|delet(?:e|es)\s+(?:the\s+|production\s+)?(?:database|tables?)|bypass\s+the\s+guard|run\s+the\s+destructive\s+command|send\s+(?:me\s+)?the\s+credentials|execute\s+the\s+dangerous\s+operation|disable\s+security|enter\s+unrestricted\s+mode|execute\s+the\s+command)\b",
                 weight=0.9,
                 rule_id="INJ_TROJAN_FRAMING",
                 description="Malicious action disguised under educational or testing framing",
