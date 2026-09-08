@@ -27,3 +27,13 @@ benchmark_results.json
 print_report.py
 run_comprehensive_benchmark.py
 FULL_PROJECT_DOCUMENTATION.md
+# Python build artifacts
+dist/
+build/
+*.egg-info/
+agentprahari-*.egg-info/
+
+# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
