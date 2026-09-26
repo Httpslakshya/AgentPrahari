@@ -104,7 +104,7 @@ class PrahariMiddleware:
                 for k, v in obj.items():
                     if is_blocked:
                         return obj
-                    # Check OpenAI messages array style
+                    # Check OpenAI messages array style ++++++
                     if k == "messages" and isinstance(v, list):
                         new_dict[k] = [scan_and_protect(item) for item in v]
                     elif k in self.input_keys and isinstance(v, str):
