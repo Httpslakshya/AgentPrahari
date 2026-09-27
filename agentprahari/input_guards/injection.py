@@ -216,6 +216,18 @@ class PromptInjectionGuard(BaseInputGuard):
                     continue
                 matches = list(pat.regex.finditer(text_variant))
                 if matches:
+                    # Filter out matches preceded by negations like "never", "do not", "don't", "must not"
+                    if pat.rule_id in ("INJ_LEAK_SYSTEM_PROMPT", "INJ_OVERRIDE_PREVIOUS"):
+                        filtered_matches = []
+                        for m in matches:
+                            prefix = text_variant[max(0, m.start() - 25):m.start()]
+                            if re.search(r"\b(?:never|not|don't|dont|do\s+not|must\s+not|should\s+not|cannot|can't)\s*$", prefix, re.IGNORECASE):
+                                continue
+                            filtered_matches.append(m)
+                        matches = filtered_matches
+                        if not matches:
+                            continue
+
                     # If the user is just asking "what is a system prompt" or "explain prompt injection", allow it!
                     if is_pure_inquiry and not has_secondary_imperative and pat.rule_id in ("INJ_LEAK_SYSTEM_PROMPT", "INJ_OVERRIDE_PREVIOUS"):
                         if not re.search(r"\b(?:ignore|disregard|override|dump|reveal|your\s+system|your\s+instructions)\b", text_variant, re.IGNORECASE):

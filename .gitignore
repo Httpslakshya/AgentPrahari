@@ -32,8 +32,12 @@ dist/
 build/
 *.egg-info/
 agentprahari-*.egg-info/
+agentprahari-*/
 
 # Python cache
 __pycache__/
 *.py[cod]
 .pytest_cache/
+
+# Custom Agent Folder
+custom_agent/

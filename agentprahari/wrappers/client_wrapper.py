@@ -21,12 +21,18 @@ class ShieldedCompletions:
             guarded_messages = []
             for msg in messages:
                 if isinstance(msg, dict) and "content" in msg and isinstance(msg["content"], str):
-                    res = self._shield.validate_input(msg["content"])
-                    res.raise_if_blocked()
-                    # Use sanitized text
-                    guarded_msg = dict(msg)
-                    guarded_msg["content"] = res.sanitized_content
-                    guarded_messages.append(guarded_msg)
+                    # Only validate messages originating from the user; developer system prompts,
+                    # assistant responses, and tool outputs should not be subjected to user input guards.
+                    role = msg.get("role", "user")
+                    if role == "user":
+                        res = self._shield.validate_input(msg["content"])
+                        res.raise_if_blocked()
+                        # Use sanitized text
+                        guarded_msg = dict(msg)
+                        guarded_msg["content"] = res.sanitized_content
+                        guarded_messages.append(guarded_msg)
+                    else:
+                        guarded_messages.append(msg)
                 else:
                     guarded_messages.append(msg)
             kwargs["messages"] = guarded_messages
